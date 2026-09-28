@@ -1,0 +1,8 @@
+# Originaux lourds des dessins (les versions web sont dans media/dessin/)
+media/D-*.png
+
+# Affiches d origine (le site utilise media/cinema/thumb/)
+media/C-*
+
+# Couvertures d origine (le site utilise media/lecture/thumb/)
+media/L-*
