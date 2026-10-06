@@ -372,8 +372,16 @@ footer .mono{font-size:11px}
 <style>
 #petals{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
 #contact{position:relative;overflow:hidden}
-#dahlia{position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:0;pointer-events:none;display:block}
-@media(max-width:860px){#dahlia{opacity:.7}}
+
+</style>
+<style>
+.edu-pop{position:relative;display:inline-block}
+.edu-trig{cursor:pointer}
+.edu-trig::after{content:"▾";margin-left:6px;font-size:.75em;color:var(--red)}
+.edu-menu{position:absolute;left:0;top:calc(100% + 8px);z-index:20;min-width:190px;padding:6px;border-radius:12px;background:#fff;border:1px solid rgba(11,11,11,.12);box-shadow:0 14px 34px rgba(0,0,0,.16);display:flex;flex-direction:column;gap:2px}
+.edu-menu[hidden]{display:none}
+.edu-menu a{display:block;padding:10px 14px;border-radius:8px;border:0;font-family:var(--f-body);font-weight:500;font-size:14px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:background .15s,color .15s}
+.edu-menu a:hover,.edu-menu a:focus-visible{background:var(--red);color:#fff;border:0}
 </style>
 </head>
 <body>
@@ -528,7 +536,7 @@ footer .mono{font-size:11px}
     <h2 class="h-sec" style="color:var(--red)" data-en="EDUCATION">ÉDUCATION</h2>
   </div>
   <div class="edu-tl">
-    <div class="edu-row reveal"><div class="edu-dip" data-en="Bachelor&#x27;s Degree">Bachelor</div><div class="edu-slash"></div><div class="edu-side"><div class="edu-school"><a href="https://www.ican-design.fr/" target="_blank" rel="noopener" data-en="ICAN">ICAN</a></div><div class="edu-fil" data-en="3D Animation&lt;span class=&quot;st&quot;&gt;In progress&lt;/span&gt;">Animation 3D<span class="st">En cours</span></div></div></div>
+    <div class="edu-row reveal"><div class="edu-dip" data-en="Bachelor&#x27;s Degree">Bachelor</div><div class="edu-slash"></div><div class="edu-side"><div class="edu-school edu-pop"><a href="https://www.ican-design.fr/" class="edu-trig" role="button" aria-haspopup="true" aria-expanded="false" data-en="ICAN">ICAN</a><div class="edu-menu" hidden><a href="https://www.ican-design.fr/" target="_blank" rel="noopener" data-en="Visit the website">Voir le site</a><a href="https://drive.google.com/drive/folders/1LQqNnPrrJ68Bhqa3O1Y1_rreCw9msDEC?usp=drive_link" target="_blank" rel="noopener" data-en="View my work">Voir les travaux</a></div></div><div class="edu-fil" data-en="3D Animation&lt;span class=&quot;st&quot;&gt;In progress&lt;/span&gt;">Animation 3D<span class="st">En cours</span></div></div></div>
     <div class="edu-row reveal"><div class="edu-dip" data-en="Master&#x27;s Degree">Master</div><div class="edu-slash"></div><div class="edu-side"><div class="edu-school"><a href="https://www.univ-gustave-eiffel.fr/" target="_blank" rel="noopener" data-en="Université Gustave Eiffel (France)">Université Gustave Eiffel</a></div><div class="edu-fil" data-en="Web Culture &amp;amp; Digital Professions (Cultures et Métiers du Web)">Cultures et Métiers du Web</div></div></div>
     <div class="edu-row reveal"><div class="edu-dip" data-en="Master&#x27;s Degree">Master</div><div class="edu-slash"></div><div class="edu-side"><div class="edu-school"><a href="https://www.emit.mg/" target="_blank" rel="noopener" data-en="École de Management et d&#x27;Innovation Technologique (EMIT), Madagascar">École de Management et d'Innovation Technologique</a></div><div class="edu-fil" data-en="Multimedia Communication">Communication Multimédia</div></div></div>
     <div class="edu-row reveal"><div class="edu-dip" data-en="Bachelor&#x27;s Degree">Licence</div><div class="edu-slash"></div><div class="edu-side"><div class="edu-school"><a href="https://www.emit.mg/" target="_blank" rel="noopener" data-en="École de Management et d&#x27;Innovation Technologique (EMIT), Madagascar">École de Management et d'Innovation Technologique</a></div><div class="edu-fil" data-en="Multimedia Communication">Communication Multimédia</div></div></div>
@@ -551,7 +559,7 @@ footer .mono{font-size:11px}
 </div></section>
 
 <!-- ===== CONTACT (bannière) ===== -->
-<section id="contact" class="sec"><canvas id="dahlia" aria-hidden="true"></canvas><div class="wrap">
+<section id="contact" class="sec"><div class="wrap">
   <div style="margin-bottom:38px"><h2 class="h-sec" style="color:var(--red)" data-en="CONTACT">CONTACT</h2></div>
   <div class="contact-2col">
     <div class="lg-panel reveal">
@@ -882,17 +890,23 @@ document.addEventListener('DOMContentLoaded',sizeAbout);
       var p=petals[i];
       if(p.rest){
         if(gy===null){ p.rest=false; }
-        else { p.y=gy-p.s*.25; drawPetal(p); continue; }
+        else {
+          /* un coup de souris tout près le fait redécoller */
+          var rdx=p.x-mx, rdy=(gy-p.s*.25-p.pile)-my;
+          if(rdx*rdx+rdy*rdy<70*70 && Math.abs(mvx)+Math.abs(mvy)>3){ p.rest=false; p.vy=-rnd(1,2.2); p.vx=mvx*.08; }
+          else { p.y=gy-p.s*.25-p.pile; drawPetal(p); continue; }
+        }
       }
       /* chute douce + balancement */
       var sway=reduce?0:Math.sin(t*.0009+p.ph)*.3;
-      p.vy+=(p.fall-p.vy)*.03; p.vx+=(gust*.25-p.vx)*.04;
+      p.vy+=(p.fall*(gy!==null?1.7:1)-p.vy)*.03;  /* en bas de page ils descendent un peu plus vite pour se poser */ p.vx+=(gust*.25-p.vx)*.04;
       /* brise de la souris */
       var dx=p.x-mx, dy=p.y-my, d2=dx*dx+dy*dy;
       if(d2<170*170){ var f=1-Math.sqrt(d2)/170; p.vx+=mvx*.03*f; p.vy+=(mvy*.018-.2)*f; p.vr+=mvx*.0005*f; if(Math.random()<.04*f) addBurst(p.x,p.y,1); }
       p.x+=p.vx+sway; p.y+=p.vy; p.rot+=p.vr; p.vr*=.99; p.flip+=reduce?0:p.vf;
       if(p.vy<-9)p.vy=-9; if(p.vy>9)p.vy=9; p.vf+=(.02-p.vf)*.01;
-      if(gy!==null && p.y>=gy-p.s*.25 && p.vy>=0){ p.rest=true; p.rot=rnd(-.4,.4)+Math.PI/2; p.flip=0; p.y=gy-p.s*.25; }
+      if(gy!==null && p.vy>=0){ if(p.pile===undefined||!p.landing){ p.pile=rnd(0,1)<.7?rnd(0,5):rnd(5,16); p.landing=true; }
+        if(p.y>=gy-p.s*.25-p.pile){ p.rest=true; p.landing=false; p.rot=rnd(-.5,.5)+Math.PI/2; p.flip=rnd(-.5,.5); p.y=gy-p.s*.25-p.pile; } }
       /* toujours visibles : bords gauche/droite reliés, pas de sortie par le haut */
       if(p.x<-20) p.x=W+20; else if(p.x>W+20) p.x=-20;
       /* sortie en haut -> relancé depuis le bas, comme jeté en l'air */
@@ -908,67 +922,16 @@ document.addEventListener('DOMContentLoaded',sizeAbout);
   }
   requestAnimationFrame(tick);
 })();
-
-/* ===== Dahlia qui fleurit (Contact, moitié droite) ===== */
+</script>
+<script>
+/* Éducation : petit menu sur ICAN (site / travaux) */
 (function(){
-  var cv=document.getElementById('dahlia'), sec=document.getElementById('contact'); if(!cv||!sec||!cv.getContext) return;
-  var ctx=cv.getContext('2d'), dpr=Math.min(window.devicePixelRatio||1,2), R=0;
-  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function size(){ R=Math.round(Math.min(sec.offsetHeight*.46, innerWidth<860?innerWidth*.45:Math.max(220,innerWidth*.26), 420)); cv.style.width=R+'px'; cv.style.height=(2*R)+'px'; cv.width=R*dpr; cv.height=2*R*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); sec.style.setProperty('--dahlia',R+'px'); }
-  size(); addEventListener('resize',size);
-  var rings=[];
-  /* 5 couronnes régulièrement espacées, pétales de même taille */
-  var NR=5;
-  for(var i=0;i<NR;i++){ var rr=1-i*.16, n=Math.round(6+22*Math.pow(rr,1.15)); rings.push({r:rr, n:n, a:(i%2?Math.PI/n:0), spin:(i%2?1:-1)*(.00012+i*.00002), len:Math.min(.34,.96*rr-.12), w:.125, delay:i*300}); }
-  var start=null, rotT=0, lastT=0, bloomDur=1600, total=bloomDur+(NR-1)*300;
-  function ease(x){ x=Math.max(0,Math.min(1,x)); return 1-Math.pow(1-x,3); }
-  function petal(len,w,c1,c2,ba){
-    var g=ctx.createLinearGradient(0,0,len,0); g.addColorStop(0,c1); g.addColorStop(1,c2); ctx.fillStyle=g;
-    /* forme de pétale de dahlia : base étroite, ventre allongé, pointe effilée */
-    ctx.beginPath(); ctx.moveTo(0,0);
-    ctx.bezierCurveTo(len*.18,-w*.35,len*.4,-w*.95,len*.66,-w*.9);
-    ctx.quadraticCurveTo(len*.88,-w*.72,len,0);
-    ctx.quadraticCurveTo(len*.88,w*.72,len*.66,w*.9);
-    ctx.bezierCurveTo(len*.4,w*.95,len*.18,w*.35,0,0); ctx.closePath(); ctx.fill();
-    /* bordure rouge qui se fond vers l'intérieur du pétale */
-    ctx.save(); ctx.clip();
-    ctx.shadowColor='rgba(139,13,26,'+(ba*.85)+')'; ctx.shadowBlur=Math.max(3,w*.5);
-    ctx.strokeStyle='rgba(139,13,26,'+ba+')'; ctx.lineWidth=Math.max(1.2,w*.08); ctx.stroke();
-    ctx.restore();
-  }
-  var COL=[['#f4e3e6','#fefafb'],['#ecd0d5','#f9ecee'],['#e1b4bc','#f2dbdf'],['#d398a3','#e8c3ca'],['#c27b88','#daa7b1']];
-  function draw(t){
-    if(start===null) return;
-    var el=t-start, dt=t-lastT; lastT=t;
-    ctx.clearRect(0,0,R,2*R);
-    var cx=R, cy=R, done=el>total;
-    if(done&&!reduce) rotT+=dt;
-    for(var i=0;i<rings.length;i++){
-      var g=rings[i], p=reduce?1:ease((el-g.delay)/bloomDur); if(p<=0) continue;
-      var rad=R*.96*g.r, len=R*g.len*p, w=R*g.w*(.4+.6*p);
-      var base=rad-R*g.len; if(base<R*.12) base=R*.12;
-      var ang=g.a+rotT*g.spin+(1-p)*.6*(i%2?1:-1);
-      /* disque de fond sous la couronne : aucun trou blanc quand elle tourne */
-      if(i>0||p>.95){ ctx.globalAlpha=Math.min(1,p*1.4); ctx.fillStyle=COL[i][0]; ctx.beginPath(); ctx.arc(cx,cy,(base*p+len*.5),0,6.283); ctx.fill(); }
-      for(var k=0;k<g.n;k++){
-        var th=ang+k*2*Math.PI/g.n;
-        ctx.save(); ctx.translate(cx,cy); ctx.rotate(th); ctx.translate(base*p,0);
-        ctx.globalAlpha=Math.min(1,p*1.4); petal(len,w,COL[i][0],COL[i][1],.16+i*.12);  /* bordure : claire au bord, plus soutenue vers le cœur */ ctx.restore();
-      }
-    }
-    ctx.globalAlpha=1;
-    /* coeur immobile */
-    var cp=reduce?1:ease((el-(NR-1)*300)/900), cr=R*.13*cp;
-    if(cr>0){
-      var cg=ctx.createRadialGradient(cx-cr*.3,cy-cr*.3,cr*.1,cx,cy,cr); cg.addColorStop(0,'#e2aab3'); cg.addColorStop(.6,'#b0606d'); cg.addColorStop(1,'#8f3a47');
-      ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(cx,cy,cr,0,6.283); ctx.fill();
-      ctx.fillStyle='rgba(255,215,220,.55)';
-      for(var k=0;k<34;k++){ var a=k*2.39996, rr=cr*.85*Math.sqrt((k+.5)/34); ctx.beginPath(); ctx.arc(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,Math.max(.8,cr*.045),0,6.283); ctx.fill(); }
-    }
-    requestAnimationFrame(draw);
-  }
-  var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting&&start===null){ start=performance.now(); lastT=start; requestAnimationFrame(draw); io.disconnect(); } }); },{threshold:.3});
-  io.observe(sec);
+  var t=document.querySelector('.edu-trig'), m=document.querySelector('.edu-menu'); if(!t||!m) return;
+  function set(o){ m.hidden=!o; t.setAttribute('aria-expanded',o?'true':'false'); }
+  t.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); set(m.hidden); });
+  m.addEventListener('click',function(e){ e.stopPropagation(); set(false); });
+  document.addEventListener('click',function(){ set(false); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') set(false); });
 })();
 </script>
 </body>
